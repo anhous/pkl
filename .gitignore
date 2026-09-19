@@ -3,7 +3,8 @@ node_modules/
 out/
 dist/
 uploads/*
-!uploads/.gitkeep
+**/uploads/*
+!**/uploads/.gitkeep
 .env
 .env.local
 *.log
