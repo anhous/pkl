@@ -1,0 +1,261 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+enum RoleName {
+  SUPERADMIN
+  ADMIN_SEKOLAH
+  GURU
+  SISWA
+  INSTRUKTUR // Fase 2
+}
+
+enum SiswaStatus {
+  AKTIF
+  SELESAI
+  KELUAR
+}
+
+enum PenempatanStatus {
+  AKTIF
+  SELESAI
+  BATAL
+}
+
+enum VerifikasiStatus {
+  MENUNGGU
+  DIPERIKSA
+  DISETUJUI
+  REVISI
+}
+
+enum KehadiranStatus {
+  HADIR
+  IZIN
+  SAKIT
+  ALPHA
+}
+
+enum SyncStatus {
+  BERJALAN
+  SUKSES
+  GAGAL
+}
+
+// ---------- Auth ----------
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        RoleName @unique
+  description String?  @db.VarChar(255)
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roles")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique @db.VarChar(190)
+  passwordHash String    @db.VarChar(255)
+  roleId       Int
+  role         Role      @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  siswa      MasterSiswa?
+  guru       MasterGuru?
+  instruktur MasterInstruktur?
+
+  @@index([roleId])
+  @@map("users")
+}
+
+// ---------- Master ----------
+model MasterJurusan {
+  id        Int           @id @default(autoincrement())
+  kode      String        @unique @db.VarChar(20)
+  nama      String        @db.VarChar(120)
+  siswa     MasterSiswa[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("master_jurusan")
+}
+
+model MasterSiswa {
+  id        Int         @id @default(autoincrement())
+  nisn      String      @unique @db.VarChar(20)
+  nama      String      @db.VarChar(120)
+  kelas     String      @db.VarChar(40)
+  kontak    String?     @db.VarChar(40)
+  status    SiswaStatus @default(AKTIF)
+  jurusanId Int?
+  jurusan   MasterJurusan? @relation(fields: [jurusanId], references: [id], onDelete: SetNull)
+  userId    Int?        @unique
+  user      User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  penempatan PenempatanPkl[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jurusanId])
+  @@index([status])
+  @@map("master_siswa")
+}
+
+model MasterGuru {
+  id         Int    @id @default(autoincrement())
+  nip        String @unique @db.VarChar(30)
+  nama       String @db.VarChar(120)
+  kompetensi String? @db.VarChar(120)
+  kontak     String? @db.VarChar(40)
+  userId     Int?   @unique
+  user       User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  penempatan PenempatanPkl[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("master_guru")
+}
+
+model MasterDudi {
+  id        Int     @id @default(autoincrement())
+  nama      String  @db.VarChar(160)
+  alamat    String  @db.Text
+  kuota     Int     @default(0)
+  latitude  Float?
+  longitude Float?
+  kontak    String? @db.VarChar(80)
+  deskripsi String? @db.Text
+
+  penempatan  PenempatanPkl[]
+  instruktur  MasterInstruktur[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([nama])
+  @@map("master_dudi")
+}
+
+model MasterInstruktur {
+  id         Int    @id @default(autoincrement())
+  identifier String @unique @db.VarChar(30)
+  nama       String @db.VarChar(120)
+  kontak     String? @db.VarChar(40)
+  dudiId     Int?
+  dudi       MasterDudi? @relation(fields: [dudiId], references: [id], onDelete: SetNull)
+  userId     Int?   @unique
+  user       User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  penempatan PenempatanPkl[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dudiId])
+  @@map("master_instruktur")
+}
+
+// ---------- Penempatan ----------
+model PenempatanPkl {
+  id           Int              @id @default(autoincrement())
+  siswaId      Int
+  siswa        MasterSiswa      @relation(fields: [siswaId], references: [id], onDelete: Cascade)
+  dudiId       Int
+  dudi         MasterDudi       @relation(fields: [dudiId], references: [id], onDelete: Restrict)
+  guruId       Int?
+  guru         MasterGuru?      @relation(fields: [guruId], references: [id], onDelete: SetNull)
+  instrukturId Int?
+  instruktur   MasterInstruktur? @relation(fields: [instrukturId], references: [id], onDelete: SetNull)
+
+  tanggalMulai   DateTime         @db.Date
+  tanggalSelesai DateTime         @db.Date
+  status         PenempatanStatus @default(AKTIF)
+
+  jurnal   JurnalHarian[]
+  presensi PresensiKesehatan[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([siswaId])
+  @@index([dudiId])
+  @@index([guruId])
+  @@index([status])
+  @@map("penempatan_pkl")
+}
+
+// ---------- Jurnal & Presensi ----------
+model JurnalHarian {
+  id            Int      @id @default(autoincrement())
+  penempatanId  Int
+  penempatan    PenempatanPkl @relation(fields: [penempatanId], references: [id], onDelete: Cascade)
+
+  tanggal     DateTime @db.Date
+  jamMulai    String   @db.VarChar(5) // "08:00"
+  jamSelesai  String   @db.VarChar(5)
+  deskripsi   String   @db.Text
+
+  fotoUrl String? @db.VarChar(500)
+  fotoLat Float?
+  fotoLng Float?
+
+  nilaiGuru   Int?    // 1-100
+  catatanGuru String? @db.Text
+  statusVerifikasi VerifikasiStatus @default(MENUNGGU)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([penempatanId, tanggal])
+  @@index([tanggal])
+  @@index([statusVerifikasi])
+  @@map("jurnal_harian")
+}
+
+model PresensiKesehatan {
+  id            Int      @id @default(autoincrement())
+  penempatanId  Int
+  penempatan    PenempatanPkl @relation(fields: [penempatanId], references: [id], onDelete: Cascade)
+
+  tanggal           DateTime        @db.Date
+  statusKehadiran   KehadiranStatus
+  kondisiKesehatan  String          @db.VarChar(60) // SEHAT / SAKIT_RINGAN / BUTUH_PENANGANAN
+  catatanKesehatan  String?         @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([penempatanId, tanggal])
+  @@index([tanggal])
+  @@index([statusKehadiran])
+  @@map("presensi_kesehatan")
+}
+
+// ---------- Sync ----------
+model SyncLog {
+  id         Int        @id @default(autoincrement())
+  sourceApp  String     @db.VarChar(60)
+  endpoint   String     @db.VarChar(255)
+  status     SyncStatus
+  message    String?    @db.Text
+  recordCount Int       @default(0)
+  createdAt  DateTime   @default(now())
+
+  @@index([sourceApp])
+  @@index([status])
+  @@map("sync_logs")
+}

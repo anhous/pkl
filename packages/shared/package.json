@@ -1,0 +1,11 @@
+{
+  "name": "@pkl/shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./rbac": "./src/rbac.js",
+    "./constants": "./src/constants.js"
+  }
+}

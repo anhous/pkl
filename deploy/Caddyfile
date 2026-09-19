@@ -1,0 +1,22 @@
+# Caddy — taruh di server Caddy Anda, lalu: caddy reload
+# Ganti pkl.sekolah.id dengan domain asli.
+pkl.sekolah.id {
+    request_body {
+        max_size 8MB
+    }
+
+    # API Express (JSON + file upload + webhook SDMS)
+    handle /api/* {
+        reverse_proxy localhost:4000
+    }
+
+    # Foto jurnal (diserv Express dari apps/api/uploads)
+    handle /uploads/* {
+        reverse_proxy localhost:4000
+    }
+
+    # Frontend Next.js
+    handle {
+        reverse_proxy localhost:3000
+    }
+}

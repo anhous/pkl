@@ -1,0 +1,21 @@
+{
+  "name": "jurnal-pkl-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sistem Informasi & Jurnal Digital PKL — Next.js + Express + Prisma + MariaDB",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces",
+    "prisma:generate": "npm run prisma:generate --workspace=apps/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace=apps/api",
+    "db:seed": "npm run db:seed --workspace=apps/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
