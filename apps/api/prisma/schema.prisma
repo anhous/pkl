@@ -262,6 +262,14 @@ model PresensiKesehatan {
 }
 
 // ---------- Sync ----------
+model AppSetting {
+  key       String   @unique @db.VarChar(80)
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("app_settings")
+}
+
 model SyncLog {
   id         Int        @id @default(autoincrement())
   sourceApp  String     @db.VarChar(60)

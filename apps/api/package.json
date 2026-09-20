@@ -18,7 +18,8 @@
     "test:tahap5": "node test/tahap5.smoke.js",
     "test:webhook": "node test/webhook.smoke.js",
     "test:password-reset": "node test/password-reset.smoke.js",
-    "test": "node test/auth.smoke.js && node test/tahap2.smoke.js && node test/tahap3.smoke.js && node test/tahap4.smoke.js && node test/tahap5.smoke.js && node test/webhook.smoke.js && node test/password-reset.smoke.js"
+    "test:sync-settings": "node test/sync-settings.smoke.js",
+    "test": "node test/auth.smoke.js && node test/tahap2.smoke.js && node test/tahap3.smoke.js && node test/tahap4.smoke.js && node test/tahap5.smoke.js && node test/webhook.smoke.js && node test/password-reset.smoke.js && node test/sync-settings.smoke.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

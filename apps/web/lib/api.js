@@ -71,6 +71,9 @@ export const apiTeraktif = (p) => req(`/analitik/jurnal-teraktif${qa(p)}`);
 export const apiExportUrl = (type) => `${API_BASE}/analitik/export?type=${type}`;
 
 export const apiSyncStatus = () => req('/sync/status');
+export const apiSyncSettings = () => req('/sync/settings');
+export const apiSyncSettingsPut = (body) => req('/sync/settings', { method: 'PUT', body });
+export const apiSyncSchedulerReload = () => req('/sync/scheduler/reload', { method: 'POST' });
 export const apiSyncPull = (entity) => req(`/sync/${entity}/pull`, { method: 'POST' });
 export const apiSyncPush = (limit = 100) =>
   fetch(`${API_BASE}/sync/jurnal/push`, {
