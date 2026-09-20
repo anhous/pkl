@@ -1,6 +1,9 @@
 'use strict';
+const crypto = require('crypto');
 const { hashPassword, verifyPassword } = require('../../utils/password');
 const { signAccessToken, signRefreshToken, verifyToken } = require('../../utils/jwt');
+const env = require('../../config/env');
+const { sendPasswordResetEmail } = require('../../utils/mailer');
 
 async function login(prisma, { email, password }) {
   const user = await prisma.user.findUnique({ where: { email }, include: { role: true } });
@@ -56,4 +59,48 @@ function refresh(refreshToken) {
   return { accessToken: signAccessToken(payload) };
 }
 
-module.exports = { login, register, refresh };
+// Token reset tidak pernah disimpan mentah di DB (hanya sha256 hex 64 char).
+function hashResetToken(token) {
+  return crypto.createHash('sha256').update(String(token)).digest('hex');
+}
+
+async function requestPasswordReset(prisma, { email }) {
+  // Selalu balas generik agar email terdaftar/tidak tidak bisa di-enumerasi.
+  const generic = { message: 'Jika email terdaftar & aktif, link reset sudah dikirim.' };
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || !user.isActive) return { ...generic, emailSent: false };
+  // Satu token aktif per user: hapus yang belum dipakai sebelum buat baru.
+  await prisma.passwordResetToken.deleteMany({ where: { userId: user.id, usedAt: null } });
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + env.resetTokenExpiresMinutes * 60 * 1000);
+  await prisma.passwordResetToken.create({ data: { userId: user.id, tokenHash: hashResetToken(token), expiresAt } });
+  const resetUrl = `${env.appUrl}/reset-password?token=${token}`;
+  let emailSent = false;
+  try {
+    const r = await sendPasswordResetEmail({ to: user.email, resetUrl, expiresMinutes: env.resetTokenExpiresMinutes });
+    emailSent = !!r.sent;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('[auth] kirim email reset gagal:', e.message);
+  }
+  // Token mentah TIDAK dikembalikan di production (anti take-over via email enumeration).
+  // Tanpa SMTP, link tercatat di log server (lihat mailer.js) untuk diambil admin via `pm2 logs`.
+  return { ...generic, emailSent };
+}
+
+async function resetPassword(prisma, { token, password }) {
+  const row = await prisma.passwordResetToken.findUnique({ where: { tokenHash: hashResetToken(token) } });
+  if (!row || row.usedAt || row.expiresAt.getTime() < Date.now()) {
+    const err = new Error('Token tidak valid atau kedaluwarsa. Minta link baru.');
+    err.status = 400;
+    throw err;
+  }
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: row.userId }, data: { passwordHash: await hashPassword(password) } }),
+    prisma.passwordResetToken.update({ where: { id: row.id }, data: { usedAt: new Date() } }),
+  ]);
+  await prisma.passwordResetToken.deleteMany({ where: { userId: row.userId, usedAt: null } });
+  return { message: 'Password berhasil diubah. Silakan masuk.' };
+}
+
+module.exports = { login, register, refresh, hashResetToken, requestPasswordReset, resetPassword };

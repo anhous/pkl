@@ -56,4 +56,22 @@ async function logoutHandler(_req, res) {
   res.json({ message: 'Logout berhasil' });
 }
 
-module.exports = { loginHandler, registerHandler, meHandler, refreshHandler, logoutHandler };
+async function forgotPasswordHandler(req, res, next) {
+  try {
+    const result = await authService.requestPasswordReset(req.prisma, req.validated);
+    res.json(result);
+  } catch (e) {
+    next(Object.assign(e, { status: e.status || 500 }));
+  }
+}
+
+async function resetPasswordHandler(req, res, next) {
+  try {
+    const result = await authService.resetPassword(req.prisma, req.validated);
+    res.json(result);
+  } catch (e) {
+    next(Object.assign(e, { status: e.status || 500 }));
+  }
+}
+
+module.exports = { loginHandler, registerHandler, meHandler, refreshHandler, logoutHandler, forgotPasswordHandler, resetPasswordHandler };

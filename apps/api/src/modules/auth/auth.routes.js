@@ -3,7 +3,7 @@ const { Router } = require('express');
 const { requireAuth } = require('../../middlewares/auth');
 const { requireRole } = require('../../middlewares/rbac');
 const { authLimiter } = require('../../middlewares/rateLimit');
-const { loginSchema, registerSchema, zodMiddleware } = require('./auth.validators');
+const { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, zodMiddleware } = require('./auth.validators');
 const c = require('./auth.controller');
 
 function authRoutes(prisma) {
@@ -11,6 +11,8 @@ function authRoutes(prisma) {
   const auth = requireAuth(prisma);
 
   r.post('/login', authLimiter, zodMiddleware(loginSchema), c.loginHandler);
+  r.post('/forgot-password', authLimiter, zodMiddleware(forgotPasswordSchema), c.forgotPasswordHandler);
+  r.post('/reset-password', authLimiter, zodMiddleware(resetPasswordSchema), c.resetPasswordHandler);
   r.post('/refresh', c.refreshHandler);
   r.post('/logout', c.logoutHandler);
   // Pembuatan akun hanya oleh admin (anti spam + RBAC verwaltung)

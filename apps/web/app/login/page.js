@@ -55,6 +55,9 @@ export default function LoginPage() {
           <button disabled={loading} className="w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">
             {loading ? 'Memeriksa...' : 'Masuk'}
           </button>
+          <p className="pt-1 text-center text-sm">
+            <a href="/forgot-password" className="font-semibold text-indigo-600 hover:text-indigo-800">Lupa password?</a>
+          </p>
         </form>
       </div>
     </main>

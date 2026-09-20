@@ -12,6 +12,15 @@ const registerSchema = z.object({
   role: z.enum(['ADMIN_SEKOLAH', 'GURU', 'SISWA']),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email().max(190),
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(32).max(128),
+  password: z.string().min(8).max(100),
+});
+
 function zodMiddleware(schema) {
   return (req, _res, next) => {
     try {
@@ -25,4 +34,4 @@ function zodMiddleware(schema) {
   };
 }
 
-module.exports = { loginSchema, registerSchema, zodMiddleware };
+module.exports = { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, zodMiddleware };

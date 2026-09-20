@@ -28,4 +28,9 @@ module.exports = {
   sdmsSyncEnabled: process.env.SDMS_SYNC_ENABLED === 'true',
   sdmsPullCron: process.env.SDMS_PULL_CRON || '0 2 * * *',
   sdmsPushCron: process.env.SDMS_PUSH_CRON || '5 * * * *',
+  // --- Lupa password via token email ---
+  // APP_URL = alamat frontend publik, dipakai untuk membangun link reset.
+  // Contoh: https://pkl.smkn1kras.sch.id
+  appUrl: (process.env.APP_URL || (process.env.CORS_ORIGIN || '').split(',')[0] || 'http://localhost:3000').trim().replace(/\/+$/, ''),
+  resetTokenExpiresMinutes: parseInt(process.env.RESET_TOKEN_EXPIRES_MINUTES || '60', 10),
 };

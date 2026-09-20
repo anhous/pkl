@@ -17,7 +17,8 @@
     "test:tahap4": "node test/tahap4.smoke.js",
     "test:tahap5": "node test/tahap5.smoke.js",
     "test:webhook": "node test/webhook.smoke.js",
-    "test": "node test/auth.smoke.js && node test/tahap2.smoke.js && node test/tahap3.smoke.js && node test/tahap4.smoke.js && node test/tahap5.smoke.js && node test/webhook.smoke.js"
+    "test:password-reset": "node test/password-reset.smoke.js",
+    "test": "node test/auth.smoke.js && node test/tahap2.smoke.js && node test/tahap3.smoke.js && node test/tahap4.smoke.js && node test/tahap5.smoke.js && node test/webhook.smoke.js && node test/password-reset.smoke.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -31,6 +32,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.14",
     "sharp": "^0.33.4",
     "zod": "^3.23.8",
     "@prisma/client": "^5.18.0"

@@ -17,6 +17,8 @@ async function req(path, { method = 'GET', body, token } = {}) {
 
 export const apiLogin = (email, password) => req('/auth/login', { method: 'POST', body: { email, password } });
 export const apiMe = () => req('/auth/me');
+export const apiForgotPassword = (email) => req('/auth/forgot-password', { method: 'POST', body: { email } });
+export const apiResetPassword = (token, password) => req('/auth/reset-password', { method: 'POST', body: { token, password } });
 
 export const apiList = (entity, params = {}) => {
   const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v !== undefined && v !== '')).toString();

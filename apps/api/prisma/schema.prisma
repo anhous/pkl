@@ -74,9 +74,25 @@ model User {
   siswa      MasterSiswa?
   guru       MasterGuru?
   instruktur MasterInstruktur?
+  passwordResets PasswordResetToken[]
 
   @@index([roleId])
   @@map("users")
+}
+
+// ---------- Password reset (lupa password via token email) ----------
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @db.VarChar(64) // sha256 hex dari token mentah
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }
 
 // ---------- Master ----------

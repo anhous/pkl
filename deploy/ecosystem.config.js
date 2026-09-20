@@ -7,7 +7,8 @@ module.exports = {
   apps: [
     {
       name: 'pkl-api',
-      script: 'apps/api/src/server.js',
+      script: 'src/server.js',
+      cwd: 'apps/api',
       // 'max' = 1 worker per vCPU. VPS 1-2 vCPU kecil: isi angka, mis. 2.
       // Atur via ENV: INSTANCES=2 pm2 start deploy/ecosystem.config.js --update-env
       instances: process.env.API_INSTANCES || 'max',
