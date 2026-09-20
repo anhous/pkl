@@ -19,6 +19,8 @@ export const apiLogin = (email, password) => req('/auth/login', { method: 'POST'
 export const apiMe = () => req('/auth/me');
 export const apiForgotPassword = (email) => req('/auth/forgot-password', { method: 'POST', body: { email } });
 export const apiResetPassword = (token, password) => req('/auth/reset-password', { method: 'POST', body: { token, password } });
+export const apiChangePassword = (currentPassword, newPassword) => req('/auth/password', { method: 'PATCH', body: { currentPassword, newPassword } });
+export const apiChangeEmail = (newEmail) => req('/auth/email', { method: 'PATCH', body: { newEmail } });
 
 export const apiList = (entity, params = {}) => {
   const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v !== undefined && v !== '')).toString();

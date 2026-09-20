@@ -12,6 +12,7 @@ const NAV = [
   { href: '/review', label: 'Review Guru', icon: '✅', roles: ['SUPERADMIN', 'ADMIN_SEKOLAH', 'GURU'] },
   { href: '/analitik', label: 'Rekap Analitik', icon: '📈', roles: ['SUPERADMIN', 'ADMIN_SEKOLAH', 'GURU'] },
   { href: '/sync', label: 'Sync SDMS', icon: '🔄', roles: ['SUPERADMIN', 'ADMIN_SEKOLAH'] },
+  { href: '/akun', label: 'Akun Saya', icon: '👤', roles: ['SUPERADMIN', 'ADMIN_SEKOLAH', 'GURU', 'SISWA'] },
 ];
 
 const ROLE_BADGE = {

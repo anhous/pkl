@@ -74,4 +74,22 @@ async function resetPasswordHandler(req, res, next) {
   }
 }
 
-module.exports = { loginHandler, registerHandler, meHandler, refreshHandler, logoutHandler, forgotPasswordHandler, resetPasswordHandler };
+async function changePasswordHandler(req, res, next) {
+  try {
+    const result = await authService.changePassword(req.prisma, req.user.id, req.validated);
+    res.json(result);
+  } catch (e) {
+    next(Object.assign(e, { status: e.status || 500 }));
+  }
+}
+
+async function changeEmailHandler(req, res, next) {
+  try {
+    const result = await authService.changeEmail(req.prisma, req.user.id, req.validated);
+    res.json(result);
+  } catch (e) {
+    next(Object.assign(e, { status: e.status || 500 }));
+  }
+}
+
+module.exports = { loginHandler, registerHandler, meHandler, refreshHandler, logoutHandler, forgotPasswordHandler, resetPasswordHandler, changePasswordHandler, changeEmailHandler };

@@ -103,4 +103,40 @@ async function resetPassword(prisma, { token, password }) {
   return { message: 'Password berhasil diubah. Silakan masuk.' };
 }
 
-module.exports = { login, register, refresh, hashResetToken, requestPasswordReset, resetPassword };
+async function changePassword(prisma, userId, { currentPassword, newPassword }) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user || !user.isActive) {
+    const err = new Error('Akun tidak ditemukan');
+    err.status = 404;
+    throw err;
+  }
+  const ok = await verifyPassword(currentPassword, user.passwordHash);
+  if (!ok) {
+    const err = new Error('Password lama salah');
+    err.status = 400;
+    throw err;
+  }
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash: await hashPassword(newPassword) } });
+  await prisma.passwordResetToken.deleteMany({ where: { userId, usedAt: null } });
+  return { message: 'Password berhasil diubah.' };
+}
+
+async function changeEmail(prisma, userId, { newEmail }) {
+  const user = await prisma.user.findUnique({ where: { id: userId }, include: { role: true } });
+  if (!user || !user.isActive) {
+    const err = new Error('Akun tidak ditemukan');
+    err.status = 404;
+    throw err;
+  }
+  if (user.email === newEmail) return { id: user.id, email: user.email, role: user.role.name };
+  const existing = await prisma.user.findUnique({ where: { email: newEmail } });
+  if (existing) {
+    const err = new Error('Email sudah dipakai akun lain');
+    err.status = 409;
+    throw err;
+  }
+  const updated = await prisma.user.update({ where: { id: userId }, data: { email: newEmail }, include: { role: true } });
+  return { id: updated.id, email: updated.email, role: updated.role.name };
+}
+
+module.exports = { login, register, refresh, hashResetToken, requestPasswordReset, resetPassword, changePassword, changeEmail };
