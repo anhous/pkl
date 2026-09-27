@@ -15,6 +15,8 @@ function authRoutes(prisma) {
   r.post('/reset-password', authLimiter, zodMiddleware(resetPasswordSchema), c.resetPasswordHandler);
   r.post('/refresh', c.refreshHandler);
   r.post('/logout', c.logoutHandler);
+  // SSO Callback dari SDMS (redirect-based)
+  r.get('/sso-callback', c.ssoCallbackHandler);
   // Pembuatan akun hanya oleh admin (anti spam + RBAC verwaltung)
   r.post('/register', auth, requireRole('SUPERADMIN', 'ADMIN_SEKOLAH'), zodMiddleware(registerSchema), c.registerHandler);
   r.get('/me', auth, c.meHandler);

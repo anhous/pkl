@@ -28,6 +28,8 @@ module.exports = {
   sdmsSyncEnabled: process.env.SDMS_SYNC_ENABLED === 'true',
   sdmsPullCron: process.env.SDMS_PULL_CRON || '0 2 * * *',
   sdmsPushCron: process.env.SDMS_PUSH_CRON || '5 * * * *',
+  // SSO Secret (harus sama dengan SSO_SECRET_PKL di .env SDMS)
+  ssoSecret: process.env.SSO_SECRET_PKL || 'sso_secret_pkl_smkn1kras_2026',
   // --- Lupa password via token email ---
   // APP_URL = alamat frontend publik, dipakai untuk membangun link reset.
   // Contoh: https://pkl.smkn1kras.sch.id
