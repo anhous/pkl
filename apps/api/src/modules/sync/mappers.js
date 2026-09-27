@@ -34,13 +34,25 @@ function mapJurusan(raw) {
 }
 
 function mapSiswa(raw) {
+  // SDMS mengirim kelas sebagai object {id, nama, tingkat} atau string
+  const kelasObj = raw?.kelas;
+  const kelasNama = typeof kelasObj === 'object' && kelasObj !== null
+    ? (kelasObj.nama || '-')
+    : str(pick(raw, ['kelas_nama', 'kelas', 'rombel', 'nama_kelas'])) || '-';
+
+  // jurusan_kode bisa dari raw.jurusan.kode (nested) atau raw.jurusan_kode (flat)
+  const jurusanObj = raw?.jurusan;
+  const jurusanKode = typeof jurusanObj === 'object' && jurusanObj !== null
+    ? str(jurusanObj.kode)
+    : str(pick(raw, ['jurusan_kode', 'kode_jurusan']));
+
   return {
     nisn: str(pick(raw, ['nisn', 'NISN', 'nis'])),
     nama: str(pick(raw, ['nama_lengkap', 'nama', 'name'])) || 'Tanpa nama',
-    kelas: str(pick(raw, ['kelas_nama', 'kelas', 'rombel', 'nama_kelas'])) || '-',
+    kelas: kelasNama,
     kontak: str(pick(raw, ['no_hp', 'no_telp', 'telepon', 'kontak', 'hp'])) || null,
-    jurusanKode: str(pick(raw, ['jurusan_kode', 'kode_jurusan'])),
-    kelasNama: str(pick(raw, ['kelas_nama', 'kelas', 'rombel'])),
+    jurusanKode,
+    kelasNama,
   };
 }
 
