@@ -153,12 +153,6 @@ async function ssoCallbackHandler(req, res, next) {
           passwordHash: randomPass,
           roleId: roleRow.id,
           isActive: true,
-          profile: {
-            create: {
-              namaLengkap: decoded.full_name || decoded.nama_lengkap || decoded.username,
-              nomorInduk: decoded.nisn || decoded.nis || decoded.nip || decoded.username,
-            },
-          },
         },
         include: { role: true },
       });
