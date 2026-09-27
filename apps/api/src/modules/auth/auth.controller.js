@@ -182,9 +182,10 @@ async function ssoCallbackHandler(req, res, next) {
     const accessToken  = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
 
-    // Kirim token ke frontend via redirect dengan query params
-    const frontendUrl = env.appUrl || 'https://pkl.smkn1kras.sch.id';
-    return res.redirect(`${frontendUrl}/sso/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&role=${pklRole}`);
+    // Redirect ke frontend dengan token di URL hash (tidak masuk server log)
+    // Frontend membaca dari window.location.hash
+    const frontendUrl = (env.appUrl || 'https://pkl.smkn1kras.sch.id').replace(/\/+$/, '');
+    return res.redirect(`${frontendUrl}/sso/callback#at=${accessToken}&rt=${refreshToken}&role=${pklRole}`);
   } catch (e) {
     next(e);
   }
