@@ -125,10 +125,10 @@ class SdmsClient {
     const all = [];
     let page = 1;
     for (;;) {
-      const envelope = await this.request('GET', path, { params: { ...params, page, per_page: perPage } });
+      const envelope = await this.request('GET', path, { params: { ...params, page, limit: perPage, per_page: perPage } });
       const { rows, meta } = require('./mappers').normalizeList(envelope);
       all.push(...rows);
-      const lastPage = meta?.last_page || meta?.lastPage;
+      const lastPage = meta?.last_page || meta?.lastPage || meta?.totalPages;
       if (lastPage ? page >= lastPage : rows.length < perPage) break;
       page += 1;
       if (page > 500) break; // pengaman
